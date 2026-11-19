@@ -1,20 +1,355 @@
-import{useEffect,useState}from'react';import{createClient}from'@supabase/supabase-js';import{AnimatePresence,motion}from'framer-motion';import{Heart,Lock,Upload,Save,Volume2,VolumeX,X,ChevronLeft,ChevronRight}from'lucide-react';
-const url=import.meta.env.VITE_SUPABASE_URL as string|undefined,key=import.meta.env.VITE_SUPABASE_ANON_KEY as string|undefined,db=url&&key?createClient(url,key):null;
-type Pic={url:string;caption:string};type Data={title:string;sender:string;welcome:string;subtitle:string;message:string;birthday:string;birthdaySub:string;letterTitle:string;letter:string;envelope:string;closing:string;music:string;musicEnabled:boolean;photos:Pic[]};
-const initial:Data={title:'A Little World of Love',sender:'Someone who adores you',welcome:'I made something special for you…',subtitle:'A little world filled with love, just for you.',message:'Before we begin, I just want you to know how incredibly special you are to me. You make ordinary days feel a little more magical.',birthday:'Happy Birthday, my favorite person!',birthdaySub:'Today, the world is a little brighter because you are in it.',letterTitle:'To my most special person…',letter:'My dearest,\n\nIf I could wrap every warm thought, every smile, and every little moment of happiness into a gift, I would give it all to you. You deserve to feel celebrated not just today, but in all the ordinary days in between.\n\nThank you for being exactly who you are. I hope this new chapter brings you gentle mornings, brave dreams, unexpected joy, and countless reasons to smile.\n\nNo matter where life takes you, I hope you never forget how wonderfully special you are.\n\nWith all my heart,',envelope:'There’s something I’ve wanted to tell you…',closing:'Happy Birthday, once again. You deserve all the happiness in this world. ♡',music:'',musicEnabled:false,photos:Array.from({length:15},()=>({url:'',caption:'A little moment, forever.'}))};
-export default function App(){const[page,setPage]=useState(location.pathname==='/admin'?'admin':'welcome'),[data,setData]=useState<Data>(initial),[draft,setDraft]=useState<Data>(initial),[session,setSession]=useState<any>(null),[notice,setNotice]=useState(''),[photo,setPhoto]=useState<number|null>(null),[music,setMusic]=useState(false),[busy,setBusy]=useState(false),[audio,setAudio]=useState<HTMLAudioElement|null>(null);
-useEffect(()=>{if(!db){const v=localStorage.getItem('birthday-content');if(v)try{setData({...initial,...JSON.parse(v)})}catch{}return}db.auth.getSession().then(({data})=>setSession(data.session));const{data:{subscription}}=db.auth.onAuthStateChange((_e,s)=>setSession(s));db.from('birthday_content').select('content').eq('id',1).eq('published',true).maybeSingle().then(({data})=>{if(data?.content){const loaded={...initial,...data.content};setData(loaded);setDraft(loaded)}});return()=>subscription.unsubscribe()},[]);
-const go=(p:string)=>setPage(p),patch=(k:keyof Data,v:any)=>setDraft(d=>({...d,[k]:v}));
-const login=async(e:React.FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!db)return;const f=new FormData(e.currentTarget);setBusy(true);const{error}=await db.auth.signInWithPassword({email:String(f.get('email')),password:String(f.get('password'))});setBusy(false);setNotice(error?.message||'Signed in')};
-const publish=async()=>{if(!db||!session)return;setBusy(true);const{error}=await db.from('birthday_content').upsert({id:1,content:draft,published:true,updated_at:new Date().toISOString()});setBusy(false);setNotice(error?.message||'Published successfully');if(!error)setData(draft)};
-const upload=async(i:number,file?:File)=>{if(!db||!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>8388608){setNotice('Use JPG, PNG or WebP under 8 MB');return}const path='gallery/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'');const{error}=await db.storage.from('birthday-media').upload(path,file);if(error){setNotice(error.message);return}const u=db.storage.from('birthday-media').getPublicUrl(path).data.publicUrl,photos=[...draft.photos];photos[i]={...photos[i],url:u};patch('photos',photos)};
-const openLetter=async()=>{go('letter');if(data.musicEnabled&&data.music){const a=new Audio(data.music);a.loop=true;setAudio(a);try{await a.play();setMusic(true)}catch{setMusic(false)}}};
-if(page==='admin')return <main className="admin"><header><a href="/">♡ little love story</a><span>PRIVATE STUDIO</span></header><section className="admin-main"><small className="eyebrow">YOUR CREATIVE CORNER</small><h1>Birthday <i>studio.</i></h1><p>Every little detail, just the way you imagined it.</p>{!db?<div className="panel"><Lock/><h2>Connect your private studio</h2><p>Add Supabase URL and anon key to Vercel environment variables, then run <code>supabase/schema.sql</code>. Secure admin publishing is disabled until configured.</p><a href="https://supabase.com/dashboard">Open Supabase ↗</a></div>:!session?<form className="panel login" onSubmit={login}><Lock/><h2>Welcome back</h2><p>Sign in to edit your surprise.</p><input name="email" type="email" placeholder="Admin email" required/><input name="password" type="password" placeholder="Password" required/><button className="primary" disabled={busy}>{busy?'Signing in…':'Sign in securely'}</button>{notice}</form>:<><div className="toolbar">Authenticated admin <button onClick={()=>db.auth.signOut().then(()=>setSession(null))}>Sign out</button></div><div className="edit-grid"><section className="panel"><h2>01 · The story</h2>{(['title','sender','welcome','subtitle','message','birthday','birthdaySub','letterTitle','envelope','closing'] as (keyof Data)[]).filter(k=>k!=='photos'&&k!=='music'&&k!=='musicEnabled').map(k=><label key={k}>{k}<textarea rows={2} value={String(draft[k])} onChange={e=>patch(k,e.target.value)}/></label>)}<label>Full love letter<textarea className="long" value={draft.letter} onChange={e=>patch('letter',e.target.value)}/></label></section><section className="panel"><h2>02 · Fifteen memories</h2><div className="slots">{draft.photos.map((p,i)=><div className="slot" key={i}>{p.url?<img src={p.url}/>:<div className="placeholder">PHOTO {i+1}</div>}<label className="upload"> <Upload size={14}/> {p.url?'Replace':'Upload'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>upload(i,e.target.files?.[0])}/></label><input value={p.caption} onChange={e=>{const a=[...draft.photos];a[i]={...p,caption:e.target.value};patch('photos',a)}}/></div>)}</div></section><section className="panel"><h2>03 · Soundtrack</h2><label><input type="checkbox" checked={draft.musicEnabled} onChange={e=>patch('musicEnabled',e.target.checked)}/> Enable music</label><label className="upload">Upload MP3 / audio<input type="file" accept="audio/*" onChange={async e=>{const f=e.target.files?.[0];if(!f||!db)return;const path='music/'+Date.now()+'-'+f.name;const{error}=await db.storage.from('birthday-media').upload(path,f);if(error){setNotice(error.message);return}patch('music',db.storage.from('birthday-media').getPublicUrl(path).data.publicUrl)}}/></label>{draft.music&&<audio controls src={draft.music}/>}</section><section className="panel"><h2>04 · Publish</h2><p>Published changes appear without redeployment.</p><button className="primary" onClick={publish} disabled={busy}><Save size={16}/>{busy?'Saving…':'Save & publish'}</button><p>{notice}</p></section></div></>}</section></main>;
-return <main className="world"><div className="ambient-art" aria-hidden="true"><img className="ambient ambient-letter ambient-letter-one" src="/asset/love-letter-01.png" alt="" /><img className="ambient ambient-letter ambient-letter-two" src="/asset/love-letter-02.png" alt="" /><img className="ambient ambient-moon" src="/asset/moon-cloud.png" alt="" /><img className="ambient ambient-heart-cloud" src="/asset/heart-cloud.png" alt="" /><img className="ambient ambient-gif ambient-butterfly" src="/asset/gif/twntysix-butterfly-26001.gif" alt="" /><img className="ambient ambient-gif ambient-cherries" src="/asset/gif/alanajordan-cherries-26093.gif" alt="" /><img className="ambient ambient-gif ambient-cute" src="/asset/gif/kuzu420-cute-23523_512.gif" alt="" /></div><div className="dust">{Array.from({length:22},(_,i)=><i key={i} style={{left:(i*37)%100+'%',animationDelay:(i%7)+'s'}}/>)}</div><div className="brand">♡ <span>A LITTLE WORLD OF LOVE</span></div><AnimatePresence mode="wait">
-{page==='welcome'&&<motion.section className="screen" key="welcome" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,y:-20}}><div className="gift">♡</div><small className="eyebrow">A LITTLE SURPRISE FOR YOU</small><h1>{data.welcome}</h1><p>{data.subtitle}</p><button className="primary" onClick={()=>go('message')}>Open your surprise ♡</button><small className="bottom">MADE WITH ALL MY HEART</small></motion.section>}
-{page==='message'&&<motion.section className="screen" key="message" initial={{opacity:0,y:25}} animate={{opacity:1,y:0}} exit={{opacity:0}}><div className="big-heart">♡</div><small className="eyebrow">BEFORE THE MAGIC BEGINS</small><h2>{data.message}</h2><p className="script">You are a beautiful part of my world.</p><button className="primary" onClick={()=>go('birthday')}>There's more… ♡</button></motion.section>}
-{page==='birthday'&&<motion.section className="screen" key="birthday" initial={{opacity:0,scale:.96}} animate={{opacity:1,scale:1}} exit={{opacity:0}}><small className="eyebrow">TODAY IS ALL ABOUT YOU</small><div className="cake"><span>✦</span></div><h1>{data.birthday}</h1><p>{data.birthdaySub}</p><button className="primary" onClick={e=>e.currentTarget.classList.add('pop')}>Send more love <Heart size={16}/></button><button className="quiet" onClick={()=>go('gallery')}>See our little memories ↓</button></motion.section>}
-{page==='gallery'&&<motion.section className="gallery" key="gallery" initial={{opacity:0,y:25}} animate={{opacity:1,y:0}} exit={{opacity:0}}><small className="eyebrow">CHAPTER ONE · THE LITTLE THINGS</small><h2>Moments I'd <i>keep forever.</i></h2><p>Every picture holds a little piece of happiness.</p><div className="scrapbook">{data.photos.map((p,i)=><motion.button className="memory" key={i} initial={{opacity:0,y:20,rotate:i%2?2:-2}} whileInView={{opacity:1,y:0}} viewport={{once:true}} onClick={()=>p.url&&setPhoto(i)}>{p.url?<img src={p.url} loading="lazy"/>:<div className="placeholder">✿<small>MEMORY {i+1}</small></div>}<span>{p.caption}</span></motion.button>)}</div><div className="butterfly">🦋</div><button className="primary" onClick={()=>go('envelope')}>One last surprise ♡</button></motion.section>}
-{page==='envelope'&&<motion.section className="screen" key="envelope" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><small className="eyebrow">CHAPTER TWO · FROM MY HEART</small><div className="envelope" onClick={openLetter}><div className="paper-peek">With love, always…</div><div className="flap"/><div className="wax">♡</div><span>A letter for you</span></div><h2>{data.envelope}</h2><button className="primary" onClick={openLetter}>Open your letter ♡</button></motion.section>}
-{page==='letter'&&<motion.section className="letter-page" key="letter" initial={{opacity:0,y:25}} animate={{opacity:1,y:0}}><article><small className="eyebrow">A FEW WORDS, JUST FOR YOU</small><h1>{data.letterTitle}</h1><p className="letter-copy">{data.letter}</p><p className="closing">{data.closing}</p><p className="signature">With love, {data.sender}</p><footer>THIS LITTLE WORLD WAS MADE ONLY FOR YOU ♡</footer></article><button className="quiet" onClick={()=>{audio?.pause();setMusic(false);go('welcome')}}>Experience it again ↗</button></motion.section>}
-</AnimatePresence>{page!=='welcome'&&page!=='letter'&&<button className="back" onClick={()=>go(({message:'welcome',birthday:'message',gallery:'birthday',envelope:'gallery'} as Record<string,string>)[page])}>← Back</button>}{audio&&<button className="music" onClick={()=>{if(music){audio.pause();setMusic(false)}else audio.play().then(()=>setMusic(true))}}>{music?<Volume2/>:<VolumeX/>} Music</button>}{photo!==null&&<div className="viewer" onClick={()=>setPhoto(null)}><button className="close"><X/></button><button className="arrow left" onClick={e=>{e.stopPropagation();setPhoto((photo+14)%15)}}><ChevronLeft/></button><img src={data.photos[photo].url}/><p>{data.photos[photo].caption}</p><button className="arrow right" onClick={e=>{e.stopPropagation();setPhoto((photo+1)%15)}}><ChevronRight/></button></div>}<a className="admin-link" href="/admin" aria-label="Admin"><Lock size={13}/></a></main>}
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Heart, Lock, Volume2, VolumeX, X } from 'lucide-react';
+import { db } from './supabase';
+import Admin from './Admin';
+import { initial, mergeContent, reel } from './data';
+import type { Data, Frame, Pic } from './data';
+
+type Page = 'welcome' | 'message' | 'birthday' | 'gallery' | 'envelope' | 'letter';
+
+const BACK: Partial<Record<Page, Page>> = {
+  message: 'welcome', birthday: 'message', gallery: 'birthday', envelope: 'gallery',
+};
+const screen = { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -16 } };
+const TILTS = [-2.2, 1.6, -1, 2.4, -1.8, 1.2];
+
+export default function App() {
+  return location.pathname.startsWith('/admin') ? <Admin /> : <Site />;
+}
+
+/* ───────────────────────── Camera-roll strip ───────────────────────── */
+
+function FilmStrip({ frames, reverse, onOpen }: { frames: Frame[]; reverse?: boolean; onOpen: (i: number) => void }) {
+  const loop = [...frames, ...frames]; // two identical sets => seamless -50% loop
+  return (
+    <div className={'film' + (reverse ? ' reverse' : '')} role="group" aria-label="Our little camera roll">
+      <div className="film-track" style={{ ['--n' as string]: frames.length }}>
+        {loop.map((f, i) => {
+          const dup = i >= frames.length;
+          return (
+            <button
+              key={i}
+              className="frame"
+              aria-hidden={dup}
+              tabIndex={dup ? -1 : 0}
+              aria-label={dup ? undefined : `Open photo: ${f.caption}`}
+              onClick={() => onOpen(i % frames.length)}
+            >
+              <img
+                src={f.url}
+                alt=""
+                decoding="async"
+                draggable={false}
+                style={{ objectPosition: f.pos, objectFit: f.fit ?? 'cover' }}
+              />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── Photo viewer ───────────────────────── */
+
+function Viewer({ list, index, setIndex, close }: { list: Pic[]; index: number; setIndex: (i: number) => void; close: () => void }) {
+  const n = list.length;
+  const startX = useRef(0);
+  const step = useCallback((d: number) => setIndex((index + d + n) % n), [index, n, setIndex]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [step, close]);
+
+  const p = list[index];
+  return (
+    <motion.div
+      className="viewer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo viewer"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={close}
+      onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        const dx = e.changedTouches[0].clientX - startX.current;
+        if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+      }}
+    >
+      <button className="close" aria-label="Close" onClick={close}><X /></button>
+      <button className="arrow left" aria-label="Previous photo" onClick={(e) => { e.stopPropagation(); step(-1); }}><ChevronLeft /></button>
+      <motion.figure key={p.url} initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()}>
+        <img src={p.url} alt={p.caption} />
+        <figcaption>{p.caption}</figcaption>
+        <small>{index + 1} / {n}</small>
+      </motion.figure>
+      <button className="arrow right" aria-label="Next photo" onClick={(e) => { e.stopPropagation(); step(1); }}><ChevronRight /></button>
+    </motion.div>
+  );
+}
+
+/* ───────────────────────── Envelope ───────────────────────── */
+
+function Envelope({ line, onOpened }: { line: string; onOpened: () => void }) {
+  const [open, setOpen] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const trigger = () => {
+    if (open) return;
+    setOpen(true);
+    timer.current = window.setTimeout(onOpened, 2300); // flap opens, letter slides out, then the page turns
+  };
+
+  return (
+    <motion.section className="screen" {...screen}>
+      <small className="eyebrow">CHAPTER TWO · FROM MY HEART</small>
+      <button className={'envelope' + (open ? ' open' : '')} onClick={trigger} aria-label="Open the envelope">
+        <span className="env-back" />
+        <span className="env-paper"><span>With love, always…</span></span>
+        <span className="env-front" />
+        <span className="env-flap" />
+        <span className="wax">♡</span>
+        <span className="env-label">A letter for you</span>
+      </button>
+      <h2>{line}</h2>
+      <button className="primary" onClick={trigger} disabled={open}>{open ? 'Opening…' : 'Open your letter ♡'}</button>
+    </motion.section>
+  );
+}
+
+/* ───────────────────────── Site ───────────────────────── */
+
+function Site() {
+  const [page, setPage] = useState<Page>('welcome');
+  const [data, setData] = useState<Data>(initial);
+  const [viewer, setViewer] = useState<{ list: Pic[]; i: number } | null>(null);
+  const [hearts, setHearts] = useState<{ id: number; x: number; s: number; d: number }[]>([]);
+  const [playing, setPlaying] = useState(false);
+  const [ambient, setAmbient] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeRef = useRef<number | undefined>(undefined);
+  const hasAudio = data.musicEnabled && !!data.music;
+
+  /* published content (falls back to the built-in content when Supabase is not configured) */
+  useEffect(() => {
+    if (!db) return;
+    let off = false;
+    db.from('birthday_content').select('content').eq('id', 1).eq('published', true).maybeSingle()
+      .then(({ data: row }) => { if (!off && row?.content) setData(mergeContent(row.content as Partial<Data>)); });
+    return () => { off = true; };
+  }, []);
+
+  /* one persistent audio element, never created twice */
+  useEffect(() => {
+    if (!hasAudio) return;
+    const a = new Audio(data.music);
+    a.loop = true;
+    a.preload = 'none';
+    a.volume = 0;
+    const on = () => setPlaying(true);
+    const off = () => setPlaying(false);
+    a.addEventListener('play', on);
+    a.addEventListener('pause', off);
+    audioRef.current = a;
+    return () => {
+      window.clearInterval(fadeRef.current);
+      a.pause();
+      a.removeEventListener('play', on);
+      a.removeEventListener('pause', off);
+      audioRef.current = null;
+    };
+  }, [hasAudio, data.music]);
+
+  /* start downloading the song and the camera-roll photos while she is still reading */
+  useEffect(() => {
+    if (page === 'welcome') return;
+    const a = audioRef.current;
+    if (a && a.preload !== 'auto') { a.preload = 'auto'; a.load(); }
+  }, [page, hasAudio, data.music]);
+  useEffect(() => {
+    if (page === 'gallery' || page === 'envelope') reel.forEach((f) => { new Image().src = f.url; });
+  }, [page]);
+
+  /* decorative GIFs load after the first paint; the heavy one only on wide screens */
+  useEffect(() => {
+    const t = window.setTimeout(() => setAmbient(true), 1200);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const fadeTo = (a: HTMLAudioElement, to: number, ms: number, done?: () => void) => {
+    window.clearInterval(fadeRef.current);
+    const from = a.volume, steps = 24;
+    let i = 0;
+    fadeRef.current = window.setInterval(() => {
+      i += 1;
+      a.volume = Math.min(1, Math.max(0, from + ((to - from) * i) / steps));
+      if (i >= steps) { window.clearInterval(fadeRef.current); done?.(); }
+    }, ms / steps);
+  };
+  const startMusic = async () => {
+    const a = audioRef.current;
+    if (!a || !a.paused) return;
+    try { a.volume = 0; await a.play(); fadeTo(a, 0.75, 2200); } catch { /* blocked: the Music button starts it */ }
+  };
+  const stopMusic = (reset: boolean) => {
+    const a = audioRef.current;
+    if (!a) return;
+    fadeTo(a, 0, 700, () => { a.pause(); if (reset) a.currentTime = 0; });
+  };
+
+  /* every navigation comes from a tap, so the song may start right when the envelope page opens */
+  const go = (p: Page) => {
+    setPage(p);
+    window.scrollTo({ top: 0 });
+    if (p === 'envelope') startMusic();
+    else if (p !== 'letter') stopMusic(p === 'welcome');
+  };
+
+  const sendLove = () => {
+    const base = Date.now();
+    const batch = Array.from({ length: 16 }, (_, i) => ({
+      id: base + i, x: Math.random() * 100, s: 0.9 + Math.random() * 1.5, d: 2.4 + Math.random() * 2,
+    }));
+    setHearts((h) => [...h, ...batch]);
+    window.setTimeout(() => setHearts((h) => h.filter((x) => !batch.some((b) => b.id === x.id))), 4600);
+  };
+
+  const paragraphs = data.letter.split(/\n{2,}/).filter(Boolean);
+  const wide = typeof window !== 'undefined' && window.matchMedia('(min-width: 900px)').matches;
+  const openMemory = (i: number) => setViewer({ list: data.photos, i });
+  const openReel = (i: number) => setViewer({ list: reel, i });
+
+  return (
+    <main className="world">
+      <div className="ambient-art" aria-hidden="true">
+        <img className="ambient ambient-letter ambient-letter-one" src="/asset/love-letter-01.png" alt="" />
+        <img className="ambient ambient-letter ambient-letter-two" src="/asset/love-letter-02.png" alt="" />
+        <img className="ambient ambient-moon" src="/asset/moon-cloud.png" alt="" />
+        <img className="ambient ambient-heart-cloud" src="/asset/heart-cloud.png" alt="" />
+        {ambient && <>
+          <img className="ambient ambient-gif ambient-butterfly" src="/asset/gif/twntysix-butterfly-26001.gif" alt="" />
+          <img className="ambient ambient-gif ambient-cute" src="/asset/gif/kuzu420-cute-23523_512.gif" alt="" />
+          {wide && <img className="ambient ambient-gif ambient-cherries" src="/asset/gif/alanajordan-cherries-26093.gif" alt="" />}
+        </>}
+      </div>
+      <div className="dust" aria-hidden="true">
+        {Array.from({ length: 22 }, (_, i) => <i key={i} style={{ left: (i * 37) % 100 + '%', animationDelay: (i % 7) + 's' }} />)}
+      </div>
+      <div className="brand">♡ <span>{data.title.toUpperCase()}</span></div>
+
+      <AnimatePresence mode="wait">
+        {page === 'welcome' && (
+          <motion.section className="screen" key="welcome" {...screen}>
+            <div className="gift" aria-hidden="true"><span>♡</span></div>
+            <small className="eyebrow">A LITTLE SURPRISE FOR YOU</small>
+            <h1>{data.welcome}</h1>
+            <p>{data.subtitle}</p>
+            <button className="primary" onClick={() => go('message')}>Open your surprise ♡</button>
+            <small className="bottom">MADE WITH ALL MY HEART</small>
+          </motion.section>
+        )}
+
+        {page === 'message' && (
+          <motion.section className="screen" key="message" {...screen}>
+            <div className="big-heart" aria-hidden="true">♡</div>
+            <small className="eyebrow">BEFORE THE MAGIC BEGINS</small>
+            <h2>{data.message}</h2>
+            <p className="script">You are a beautiful part of my world.</p>
+            <button className="primary" onClick={() => go('birthday')}>There’s more… ♡</button>
+          </motion.section>
+        )}
+
+        {page === 'birthday' && (
+          <motion.section className="screen" key="birthday" {...screen}>
+            <div className="confetti" aria-hidden="true">
+              {Array.from({ length: 26 }, (_, i) => (
+                <i key={i} style={{ left: (i * 37 + 11) % 100 + '%', animationDelay: (i % 9) * 0.45 + 's', background: ['#8B1E20', '#C9A46D', '#B80F1A', '#e8c9a0'][i % 4] }} />
+              ))}
+            </div>
+            <small className="eyebrow">TODAY IS ALL ABOUT YOU</small>
+            <div className="cake" aria-hidden="true"><span className="flame" /></div>
+            <h1>{data.birthday}</h1>
+            <p>{data.birthdaySub}</p>
+            <button className="primary" onClick={sendLove}>Send more love <Heart size={16} /></button>
+            <button className="quiet" onClick={() => go('gallery')}>See our little memories ↓</button>
+          </motion.section>
+        )}
+
+        {page === 'gallery' && (
+          <motion.section className="gallery" key="gallery" {...screen}>
+            <small className="eyebrow">CHAPTER ONE · THE LITTLE THINGS</small>
+            <h2>Moments I’d <i>keep forever.</i></h2>
+            <p>Every picture holds a little piece of happiness.</p>
+            <div className="scrapbook">
+              {data.photos.map((p, i) => (
+                <motion.div
+                  key={i}
+                  className="memory-wrap"
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+                  transition={{ duration: 0.6, delay: (i % 3) * 0.08 }}
+                >
+                  <button className="memory" style={{ ['--tilt' as string]: TILTS[i % TILTS.length] + 'deg' }} onClick={() => openMemory(i)} aria-label={`Open photo: ${p.caption}`}>
+                    <img src={p.url} alt={p.caption} loading="lazy" decoding="async" style={{ objectPosition: p.pos }} />
+                    <span>{p.caption}</span>
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+            <button className="primary" onClick={() => go('envelope')}>One last surprise ♡</button>
+          </motion.section>
+        )}
+
+        {page === 'envelope' && <Envelope key="envelope" line={data.envelope} onOpened={() => go('letter')} />}
+
+        {page === 'letter' && (
+          <motion.section className="letter-page" key="letter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9 }}>
+            <p className="reel-label">our little camera roll ✦</p>
+            <FilmStrip frames={reel} onOpen={openReel} />
+            <article>
+              <small className="eyebrow">A FEW WORDS, JUST FOR YOU</small>
+              <h1>{data.letterTitle}</h1>
+              {paragraphs.map((t, i) => (
+                <motion.p key={i} className="letter-copy" initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '0px 0px -6% 0px' }} transition={{ duration: 0.9 }}>{t}</motion.p>
+              ))}
+              <p className="closing">{data.closing}</p>
+              <p className="signature">With love, {data.sender}</p>
+              <footer>THIS LITTLE WORLD WAS MADE ONLY FOR YOU ♡</footer>
+            </article>
+            <FilmStrip frames={[...reel].reverse()} reverse onOpen={(i) => openReel(reel.length - 1 - i)} />
+            <button className="quiet" onClick={() => go('welcome')}>Experience it again ↗</button>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      {BACK[page] && <button className="back" onClick={() => go(BACK[page] as Page)}>← Back</button>}
+
+      {hasAudio && (page === 'envelope' || page === 'letter') && (
+        <button className="music" aria-label={playing ? 'Pause music' : 'Play music'} onClick={() => (playing ? stopMusic(false) : startMusic())}>
+          {playing ? <Volume2 size={18} /> : <VolumeX size={18} />}<span>{playing ? 'Music on' : 'Music off'}</span>
+        </button>
+      )}
+
+      <div className="hearts" aria-hidden="true">
+        {hearts.map((h) => <span key={h.id} style={{ left: h.x + '%', fontSize: h.s + 'rem', animationDuration: h.d + 's' }}>♥</span>)}
+      </div>
+
+      <AnimatePresence>
+        {viewer && <Viewer list={viewer.list} index={viewer.i} setIndex={(i) => setViewer({ list: viewer.list, i })} close={() => setViewer(null)} />}
+      </AnimatePresence>
+
+      <a className="admin-link" href="/admin" aria-label="Admin"><Lock size={13} /></a>
+    </main>
+  );
+}
