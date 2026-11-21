@@ -156,7 +156,7 @@ function Site() {
     if (!hasAudio) return;
     const a = new Audio(data.music);
     a.loop = true;
-    a.preload = 'none';
+    a.preload = 'auto';
     a.volume = 0;
     const on = () => setPlaying(true);
     const off = () => setPlaying(false);
@@ -203,7 +203,12 @@ function Site() {
     if (!a || !a.paused) return;
     try { a.volume = 0; await a.play(); fadeTo(a, 0.75, 2200); } catch { /* blocked: the Music button starts it */ }
   };
-  /* Retry playback when the final letter page appears, in case the earlier envelope attempt was blocked. */
+  /* Best-effort autoplay on initial page load. Browsers may block audible autoplay until a user gesture. */
+  useEffect(() => {
+    if (hasAudio) startMusic();
+  }, [hasAudio, data.music]);
+
+  /* Retry when the final letter page appears in case initial autoplay was blocked. */
   useEffect(() => {
     if (page === 'letter' && hasAudio) startMusic();
   }, [page, hasAudio, data.music]);
@@ -342,7 +347,7 @@ function Site() {
 
       {BACK[page] && <button className="back" onClick={() => go(BACK[page] as Page)}>← Back</button>}
 
-      {hasAudio && (page === 'envelope' || page === 'letter') && (
+      {hasAudio && (
         <button className="music" aria-label={playing ? 'Pause music' : 'Play music'} onClick={() => (playing ? stopMusic(false) : startMusic())}>
           {playing ? <Volume2 size={18} /> : <VolumeX size={18} />}<span>{playing ? 'Music on' : 'Music off'}</span>
         </button>
