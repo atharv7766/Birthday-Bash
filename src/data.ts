@@ -77,7 +77,7 @@ export function mergeContent(saved?: Partial<Data> | null): Data {
   const photos = defaultPhotos.map((d, i) => {
     const s = c.photos?.[i];
     return {
-      url: s?.url || d.url,
+      url: d.url,
       caption: s?.caption && s.caption !== OLD_CAPTION ? s.caption : d.caption,
       pos: d.pos,
     };
