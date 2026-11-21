@@ -114,7 +114,7 @@ img{max-width:100%}
 .letter-page footer{text-align:center;font-size:9px;letter-spacing:.18em;color:var(--gold);margin-top:45px}
 
 .film{--fw:200px;--gap:16px;--pitch:calc((var(--fw) + var(--gap)) / 8);width:100vw;overflow:hidden;background:#160709;border-block:1px solid #000;box-shadow:0 14px 34px #20070d44;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-.film-track{position:relative;display:flex;width:max-content;padding:34px 0;animation:reel calc(var(--n) * 6s) linear infinite;will-change:transform}
+.film-track{position:relative;display:flex;width:max-content;padding:34px 0;animation:reel calc(var(--n) * 2.8s) linear infinite;will-change:transform}
 .film-track:before,.film-track:after{content:'';position:absolute;left:0;width:100%;height:11px;opacity:.85;background:repeating-linear-gradient(90deg,transparent 0 calc(var(--pitch) * .28),var(--cream) calc(var(--pitch) * .28) calc(var(--pitch) * .72),transparent calc(var(--pitch) * .72) var(--pitch))}
 .film-track:before{top:11px}
 .film-track:after{bottom:11px}
