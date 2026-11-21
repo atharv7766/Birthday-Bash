@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart, Lock, Volume2, VolumeX, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Volume2, VolumeX, X } from 'lucide-react';
 import { db } from './supabase';
 import Admin from './Admin';
 import { initial, mergeContent, reel } from './data';
@@ -480,7 +480,6 @@ function Site() {
         {viewer && <Viewer list={viewer.list} index={viewer.i} setIndex={(i) => setViewer({ list: viewer.list, i })} close={() => setViewer(null)} />}
       </AnimatePresence>
 
-      <a className="admin-link" href="/admin" aria-label="Admin"><Lock size={13} /></a>
     </main>
   );
 }
