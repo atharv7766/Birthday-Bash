@@ -13,24 +13,23 @@ export type Data = Record<TextKey, string> & {
 
 /** Use the actual bundled song and photo assets from public/. */
 export const DEFAULT_MUSIC = '/HAUSER%20-%20Mia%20_%20Sebastian_s%20Theme%20-%20La%20La%20Land(MP3_320K).mp3';
-const OLD_CAPTION = 'A little moment, forever.';
 
 /** Person-only photo gallery. All images are stored in public/images/person/. */
 export const defaultPhotos: Pic[] = [
-  { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG).jpg", pos: '50% 60%', caption: "Cute moments, just for you." },
-  { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG)_1.jpg", pos: '50% 50%', caption: "A smile I could never get tired of." },
-  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG).jpg", pos: '50% 40%', caption: "Romanticizing the little things." },
-  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG)_3.jpg", pos: '50% 50%', caption: "A little dreamy moment." },
-  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG).jpg", pos: '50% 45%', caption: "Desi beauty and grace." },
-  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_1.jpg", pos: '50% 45%', caption: "A favorite look." },
-  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_2.jpg", pos: '50% 50%', caption: "A little too dreamy to be ordinary." },
-  { url: "/images/person/%E2%9C%A8%F0%9F%AA%B7%F0%9F%92%96(JPG).jpg", pos: '50% 45%', caption: "✨🪷💖" },
-  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG).jpg", pos: '50% 50%', caption: "🌸🫧🪻" },
-  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_1.jpg", pos: '50% 50%', caption: "Soft colors and smiles." },
-  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_2.jpg", pos: '50% 50%', caption: "A flower-like moment." },
-  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG).jpg", pos: '50% 50%', caption: "💖🌷💗" },
-  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG)_1.jpg", pos: '50% 50%', caption: "Another favorite smile." },
-  { url: "/images/person/%F0%9F%A4%8D%F0%9F%A4%8D_newpost_TSA%F0%9F%A4%8D%20_freshersday%E2%9D%A4%20_2023%20_tlresort%20_aizawl%F0%9F%A4%8D_mizoram%20_chakmagirl%E2%9D%A4%EF%B8%8F(JPG).jpg", pos: '50% 45%', caption: "A beautiful memory." },
+  { url: "/images/person/%E2%9C%A8%F0%9F%AA%B7%F0%9F%92%96(JPG).jpg", pos: '50% 45%', caption: "Your smile lights everything" },
+  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG)_3.jpg", pos: '50% 50%', caption: "Your eyes hold magic" },
+  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG).jpg", pos: '50% 50%', caption: "Your gentle heart shines" },
+  { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG).jpg", pos: '50% 60%', caption: "Your laugh feels golden" },
+  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_1.jpg", pos: '50% 45%', caption: "Your grace is effortless" },
+  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_1.jpg", pos: '50% 50%', caption: "Your kindness feels beautiful" },
+  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG).jpg", pos: '50% 40%', caption: "Your presence feels like home" },
+  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG)_1.jpg", pos: '50% 50%', caption: "Your style is pure magic" },
+  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG).jpg", pos: '50% 45%', caption: "Your dreams inspire me" },
+  { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG)_1.jpg", pos: '50% 50%', caption: "Your hugs feel safe" },
+  { url: "/images/person/%F0%9F%A4%8D%F0%9F%A4%8D_newpost_TSA%F0%9F%A4%8D%20_freshersday%E2%9D%A4%20_2023%20_tlresort%20_aizawl%F0%9F%A4%8D_mizoram%20_chakmagirl%E2%9D%A4%EF%B8%8F(JPG).jpg", pos: '50% 45%', caption: "Your soul shines brightly" },
+  { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_2.jpg", pos: '50% 50%', caption: "Your joy is contagious" },
+  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG).jpg", pos: '50% 50%', caption: "Your beauty feels timeless" },
+  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_2.jpg", pos: '50% 50%', caption: "Your little quirks charm me" },
 ];
 
 /** Together camera-roll frames: shared memories only, stored in public/images/together/. */
@@ -78,7 +77,8 @@ export function mergeContent(saved?: Partial<Data> | null): Data {
     const s = c.photos?.[i];
     return {
       url: d.url,
-      caption: s?.caption && s.caption !== OLD_CAPTION ? s.caption : d.caption,
+      // Keep the curated 3–4 word compliments even when old captions exist in Supabase.
+      caption: d.caption,
       pos: d.pos,
     };
   });
