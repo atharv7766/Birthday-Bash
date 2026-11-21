@@ -223,12 +223,10 @@ function Site() {
 
   /* every navigation comes from a tap, so the song may start right when the envelope page opens */
   const go = (p: Page) => {
-    if (p !== 'welcome' && p !== 'message' && p !== 'birthday' && p !== 'gallery' && p !== 'envelope' && p !== 'letter') return;
-    if (p === 'message' || p === 'birthday' || p === 'gallery') startMusic();
     setPage(p);
     window.scrollTo({ top: 0 });
-    if (p === 'envelope') startMusic();
-    else if (p !== 'letter') stopMusic(p === 'welcome');
+    if (p === 'welcome') stopMusic(true);
+    else startMusic(); // first navigation is a user gesture, so autoplay is more likely to be allowed
   };
 
   const sendLove = () => {
