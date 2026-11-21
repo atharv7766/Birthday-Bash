@@ -201,6 +201,11 @@ function Site() {
     if (!a || !a.paused) return;
     try { a.volume = 0; await a.play(); fadeTo(a, 0.75, 2200); } catch { /* blocked: the Music button starts it */ }
   };
+  /* Retry playback when the final letter page appears, in case the earlier envelope attempt was blocked. */
+  useEffect(() => {
+    if (page === 'letter' && hasAudio) startMusic();
+  }, [page, hasAudio, data.music]);
+
   const stopMusic = (reset: boolean) => {
     const a = audioRef.current;
     if (!a) return;
