@@ -287,7 +287,20 @@ function Site() {
       id: base + i, x: Math.random() * 100, s: 0.9 + Math.random() * 1.5, d: 2.4 + Math.random() * 2,
     }));
     setHearts((h) => [...h, ...batch]);
-    window.setTimeout(() => setHearts((h) => h.filter((x) => !batch.some((b) => b.id === x.id))), 4600);
+    const palette = ['#fff4cf', '#ffcb58', '#c92d40', '#f5a25b', '#ffe8f0'];
+    const sparks = Array.from({ length: 54 }, (_, i) => {
+      const burst = i % 3;
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 55 + Math.random() * 180;
+      return {
+        id: base + 100 + i, x: 18 + burst * 32 + Math.random() * 10, y: 22 + Math.random() * 45,
+        dx: Math.cos(angle) * distance, dy: Math.sin(angle) * distance,
+        color: palette[(i + burst * 2) % palette.length], delay: burst * 140 + Math.random() * 100,
+        size: 2 + Math.random() * 2.5,
+      };
+    });
+    setFireworks(sparks);
+    window.setTimeout(() => { setHearts((h) => h.filter((b) => !batch.some((x) => x.id === b.id))); setFireworks([]); }, 3000);
   };
 
   const paragraphs = data.letter.split(/\n{2,}/).filter(Boolean);
@@ -387,7 +400,15 @@ function Site() {
               ))}
             </div>
             <small className="eyebrow">TODAY IS ALL ABOUT YOU</small>
-            <div className="cake" aria-hidden="true"><span className="flame" /></div>
+            <button className="cake cake-showcase" type="button" onClick={sendLove} aria-label="Tap the birthday cake for fireworks">
+              <span className="cake-shadow" />
+              <span className="cake-plate" />
+              <span className="cake-tier cake-bottom"><span className="icing drip-bottom" /></span>
+              <span className="cake-tier cake-top"><span className="icing drip-top" /></span>
+              <span className="cake-berries" aria-hidden="true"><i /><i /><i /><i /><i /></span>
+              <span className="cake-candle"><span className="flame" /></span>
+              <span className="cake-sparkle sparkle-one">✦</span><span className="cake-sparkle sparkle-two">✧</span>
+            </button>
             <h1>{data.birthday}</h1>
             <p>{data.birthdaySub}</p>
             <button className="primary" onClick={sendLove}>Send more love <Heart size={16} /></button>
