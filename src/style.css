@@ -269,7 +269,6 @@ img{max-width:100%}
 
 /* ─────────── Floating UI ─────────── */
 .music{position:fixed;right:16px;bottom:calc(18px + var(--bottom));z-index:9;display:flex;gap:8px;align-items:center;border:1px solid var(--gold);background:#fffaf0e6;backdrop-filter:blur(6px);color:var(--burgundy);border-radius:30px;padding:10px 15px;font-size:12px;font-weight:600;box-shadow:0 8px 20px #20070d1c}
-.admin-link{position:fixed;bottom:calc(20px + var(--bottom));left:16px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--burgundy);background:#fff9;z-index:6}
 .viewer{position:fixed;inset:0;background:#20070Df2;z-index:20;display:flex;align-items:center;justify-content:center;color:#fff;padding:56px 16px 24px}
 .viewer figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:min(92vw,900px)}
 .viewer img{max-width:100%;max-height:72vh;object-fit:contain;border-radius:4px;box-shadow:0 20px 60px #0008}
