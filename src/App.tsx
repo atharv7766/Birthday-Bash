@@ -158,6 +158,7 @@ function Site() {
     a.loop = true;
     a.preload = 'auto';
     a.volume = 0;
+    a.load();
     const on = () => setPlaying(true);
     const off = () => setPlaying(false);
     a.addEventListener('play', on);
@@ -172,12 +173,13 @@ function Site() {
     };
   }, [hasAudio, data.music]);
 
-  /* start downloading the song and the camera-roll photos while she is still reading */
+  /* Eagerly warm the audio and photo assets at first render for faster loading. */
   useEffect(() => {
-    if (page === 'welcome') return;
-    const a = audioRef.current;
-    if (a && a.preload !== 'auto') { a.preload = 'auto'; a.load(); }
-  }, [page, hasAudio, data.music]);
+    if (hasAudio) { const a = audioRef.current; if (a) { a.preload = 'auto'; a.load(); } }
+    [...data.photos, ...reel].forEach((p) => {
+      const img = new Image(); img.decoding = 'async'; img.loading = 'eager'; img.src = p.url;
+    });
+  }, [hasAudio, data.music, data.photos]);
   useEffect(() => {
     if (page === 'gallery' || page === 'envelope') reel.forEach((f) => { new Image().src = f.url; });
   }, [page]);
@@ -221,6 +223,8 @@ function Site() {
 
   /* every navigation comes from a tap, so the song may start right when the envelope page opens */
   const go = (p: Page) => {
+    if (p !== 'welcome' && p !== 'message' && p !== 'birthday' && p !== 'gallery' && p !== 'envelope' && p !== 'letter') return;
+    if (p === 'message' || p === 'birthday' || p === 'gallery') startMusic();
     setPage(p);
     window.scrollTo({ top: 0 });
     if (p === 'envelope') startMusic();
@@ -328,7 +332,7 @@ function Site() {
         {page === 'letter' && (
           <motion.section className="letter-page" key="letter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9 }}>
             <p className="reel-label">our little camera roll ✦</p>
-            <FilmStrip frames={reel} onOpen={openReel} />
+            <FilmStrip frames={reel} reverse onOpen={openReel} />
             <article>
               <small className="eyebrow">A FEW WORDS, JUST FOR YOU</small>
               <h1>{data.letterTitle}</h1>
@@ -339,7 +343,7 @@ function Site() {
               <p className="signature">With love, {data.sender}</p>
               <footer>THIS LITTLE WORLD WAS MADE ONLY FOR YOU ♡</footer>
             </article>
-            <FilmStrip frames={[...reel].reverse()} reverse onOpen={(i) => openReel(reel.length - 1 - i)} />
+            <FilmStrip frames={[...reel].reverse()} onOpen={(i) => openReel(reel.length - 1 - i)} />
             <button className="quiet" onClick={() => go('welcome')}>Experience it again ↗</button>
           </motion.section>
         )}
