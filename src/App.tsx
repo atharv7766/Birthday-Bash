@@ -99,7 +99,7 @@ function Viewer({ list, index, setIndex, close }: { list: Pic[]; index: number; 
 
 /* ───────────────────────── Envelope ───────────────────────── */
 
-function Envelope({ line, onOpened }: { line: string; onOpened: () => void }) {
+function Envelope({ line, onOpened, onMusicStart }: { line: string; onOpened: () => void; onMusicStart: () => void }) {
   const [open, setOpen] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -107,6 +107,8 @@ function Envelope({ line, onOpened }: { line: string; onOpened: () => void }) {
   const trigger = () => {
     if (open) return;
     setOpen(true);
+    // Start soundtrack immediately inside the user's click gesture, before the delayed page transition.
+    onMusicStart();
     timer.current = window.setTimeout(onOpened, 2300); // flap opens, letter slides out, then the page turns
   };
 
@@ -316,7 +318,7 @@ function Site() {
           </motion.section>
         )}
 
-        {page === 'envelope' && <Envelope key="envelope" line={data.envelope} onOpened={() => go('letter')} />}
+        {page === 'envelope' && <Envelope key="envelope" line={data.envelope} onOpened={() => go('letter')} onMusicStart={startMusic} />}
 
         {page === 'letter' && (
           <motion.section className="letter-page" key="letter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9 }}>
