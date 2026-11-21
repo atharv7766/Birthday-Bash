@@ -8,6 +8,17 @@ import type { Data, Frame, Pic } from './data';
 
 type Page = 'welcome' | 'message' | 'birthday' | 'gallery' | 'envelope' | 'letter';
 
+type FireworkSpark = {
+  id: number;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  color: string;
+  delay: number;
+  size: number;
+};
+
 const BACK: Partial<Record<Page, Page>> = {
   message: 'welcome', birthday: 'message', gallery: 'birthday', envelope: 'gallery',
 };
@@ -39,6 +50,7 @@ function FilmStrip({ frames, reverse, onOpen }: { frames: Frame[]; reverse?: boo
               <img
                 src={f.url}
                 alt=""
+                loading={dup || i >= 4 ? 'lazy' : 'eager'}
                 decoding="async"
                 draggable={false}
                 style={{ objectPosition: f.pos, objectFit: f.fit ?? 'cover' }}
@@ -138,8 +150,11 @@ function Site() {
   const [hearts, setHearts] = useState<{ id: number; x: number; s: number; d: number }[]>([]);
   const [playing, setPlaying] = useState(false);
   const [ambient, setAmbient] = useState(false);
+  const [welcomeOpening, setWelcomeOpening] = useState(false);
+  const [fireworks, setFireworks] = useState<FireworkSpark[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<number | undefined>(undefined);
+  const welcomeTimer = useRef<number | undefined>(undefined);
   const hasAudio = data.musicEnabled && !!data.music;
 
   /* published content (falls back to the built-in content when Supabase is not configured) */
@@ -229,6 +244,42 @@ function Site() {
     else startMusic(); // first navigation is a user gesture, so autoplay is more likely to be allowed
   };
 
+  useEffect(() => () => window.clearTimeout(welcomeTimer.current), []);
+
+  const openSurprise = () => {
+    if (welcomeOpening) return;
+
+    setWelcomeOpening(true);
+    startMusic(); // The welcome click is the browser's user-gesture permission for audio.
+
+    const palette = ['#ffd98a', '#f7a9b8', '#fff4d7', '#d9b7ff', '#f4c76b'];
+    const centers = [{ x: 18, y: 27 }, { x: 50, y: 18 }, { x: 82, y: 28 }];
+    const base = Date.now();
+    const sparks = centers.flatMap((center, burst) =>
+      Array.from({ length: 26 }, (_, index) => {
+        const angle = (Math.PI * 2 * index) / 26 + (burst % 2) * 0.08;
+        const distance = 48 + Math.random() * 76;
+        return {
+          id: base + burst * 100 + index,
+          x: center.x,
+          y: center.y,
+          dx: Math.cos(angle) * distance,
+          dy: Math.sin(angle) * distance,
+          color: palette[(index + burst * 2) % palette.length],
+          delay: burst * 110 + Math.random() * 90,
+          size: 2 + Math.random() * 2.4,
+        };
+      })
+    );
+
+    setFireworks(sparks);
+    welcomeTimer.current = window.setTimeout(() => {
+      setFireworks([]);
+      setWelcomeOpening(false);
+      go('message');
+    }, 1450);
+  };
+
   const sendLove = () => {
     const base = Date.now();
     const batch = Array.from({ length: 16 }, (_, i) => ({
@@ -259,16 +310,59 @@ function Site() {
       <div className="dust" aria-hidden="true">
         {Array.from({ length: 22 }, (_, i) => <i key={i} style={{ left: (i * 37) % 100 + '%', animationDelay: (i % 7) + 's' }} />)}
       </div>
+      {fireworks.length > 0 && (
+        <div className="fireworks" aria-hidden="true">
+          {fireworks.map((spark) => (
+            <i
+              key={spark.id}
+              className="firework-spark"
+              style={{
+                left: `${spark.x}%`,
+                top: `${spark.y}%`,
+                width: `${spark.size}px`,
+                height: `${spark.size * 2.8}px`,
+                background: spark.color,
+                ['--spark-x' as string]: `${spark.dx}px`,
+                ['--spark-y' as string]: `${spark.dy}px`,
+                ['--spark-delay' as string]: `${spark.delay}ms`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       <div className="brand">♡ <span>{data.title.toUpperCase()}</span></div>
 
       <AnimatePresence mode="wait">
         {page === 'welcome' && (
-          <motion.section className="screen" key="welcome" {...screen}>
-            <div className="gift" aria-hidden="true"><span>♡</span></div>
+          <motion.section className="screen welcome-screen" key="welcome" {...screen}>
+            <button
+              type="button"
+              className={'gift' + (welcomeOpening ? ' gift-opening' : '')}
+              onClick={openSurprise}
+              aria-label="Tap the gift to open your surprise"
+              disabled={welcomeOpening}
+            >
+              <span className="gift-glow" />
+              <span className="gift-box">
+                <span className="gift-ribbon" />
+                <span className="gift-heart">♡</span>
+              </span>
+              <span className="gift-lid">
+                <span className="gift-lid-ribbon" />
+                <span className="gift-bow gift-bow-left" />
+                <span className="gift-bow gift-bow-right" />
+                <span className="gift-bow-knot" />
+              </span>
+              <span className="gift-sparkle gift-sparkle-one">✦</span>
+              <span className="gift-sparkle gift-sparkle-two">✧</span>
+              <span className="gift-sparkle gift-sparkle-three">✦</span>
+            </button>
             <small className="eyebrow">A LITTLE SURPRISE FOR YOU</small>
             <h1>{data.welcome}</h1>
             <p>{data.subtitle}</p>
-            <button className="primary" onClick={() => go('message')}>Open your surprise ♡</button>
+            <button className="primary welcome-cta" onClick={openSurprise} disabled={welcomeOpening}>
+              {welcomeOpening ? 'Opening your surprise…' : 'Open your surprise ♡'}
+            </button>
             <small className="bottom">MADE WITH ALL MY HEART</small>
           </motion.section>
         )}
