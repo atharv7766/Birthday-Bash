@@ -22,14 +22,14 @@ export const defaultPhotos: Pic[] = [
   { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG).jpg", pos: '50% 60%', caption: "Your laugh feels golden" },
   { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_1.jpg", pos: '50% 45%', caption: "Your grace is effortless" },
   { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_1.jpg", pos: '50% 50%', caption: "Your kindness feels beautiful" },
-  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG).jpg", pos: '50% 40%', caption: "Your presence feels like home" },
-  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG)_1.jpg", pos: '50% 50%', caption: "Your style is pure magic" },
+  { url: "/images/person/Romanticizing%20the%20little%20things%20_%20one%20picture%20at%20a%20time%20%E2%98%81%EF%B8%8F%F0%9F%A6%8B%F0%9F%AA%AD%F0%9F%8E%80%F0%9F%8C%BC(JPG).jpg", pos: '50% 40%', caption: "You feel like home" },
+  { url: "/images/person/%F0%9F%92%96%F0%9F%8C%B7%F0%9F%92%97(JPG)_1.jpg", pos: '50% 50%', caption: "Style that steals hearts" },
   { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG).jpg", pos: '50% 45%', caption: "Your dreams inspire me" },
   { url: "/images/person/Just%20me_%20being%20cute%20on%20purpose%F0%9F%8C%B7%E2%9C%A8%EF%B8%8F_._._.__Mizoram%20_traditional%20_aizwal%20_fyp(JPG)_1.jpg", pos: '50% 50%', caption: "Your hugs feel safe" },
   { url: "/images/person/%F0%9F%A4%8D%F0%9F%A4%8D_newpost_TSA%F0%9F%A4%8D%20_freshersday%E2%9D%A4%20_2023%20_tlresort%20_aizawl%F0%9F%A4%8D_mizoram%20_chakmagirl%E2%9D%A4%EF%B8%8F(JPG).jpg", pos: '50% 45%', caption: "Your soul shines brightly" },
   { url: "/images/person/_A%20little%20too%20desi%20to%20be%20ordinary_%20a%20little%20too%20dreamy%20to%20be%20understood_%20%F0%9F%AA%B7%F0%9F%A6%A2%F0%9F%AA%9E%E2%9C%A8___desicore%F0%9F%91%80%F0%9F%95%8A%EF%B8%8F%F0%9F%8C%B8(JPG)_2.jpg", pos: '50% 50%', caption: "Your joy is contagious" },
   { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG).jpg", pos: '50% 50%', caption: "Your beauty feels timeless" },
-  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_2.jpg", pos: '50% 50%', caption: "Your little quirks charm me" },
+  { url: "/images/person/%F0%9F%8C%B8%F0%9F%AB%A7%F0%9F%AA%BB(JPG)_2.jpg", pos: '50% 50%', caption: "Your quirks are adorable" },
 ];
 
 /** Together camera-roll frames: shared memories only, stored in public/images/together/. */
