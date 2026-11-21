@@ -174,6 +174,7 @@ function Site() {
     a.preload = 'auto';
     a.volume = 0;
     a.load();
+    a.load();
     const on = () => setPlaying(true);
     const off = () => setPlaying(false);
     a.addEventListener('play', on);
@@ -322,6 +323,7 @@ function Site() {
                 width: `${spark.size}px`,
                 height: `${spark.size * 2.8}px`,
                 background: spark.color,
+                color: spark.color,
                 ['--spark-x' as string]: `${spark.dx}px`,
                 ['--spark-y' as string]: `${spark.dy}px`,
                 ['--spark-delay' as string]: `${spark.delay}ms`,
